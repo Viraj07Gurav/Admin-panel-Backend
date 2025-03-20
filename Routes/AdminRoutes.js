@@ -296,7 +296,7 @@ router.get("/carousel", (req, res) => {
 
 //update color from rightside bar
 router.post("/updateColor", (req, res) => {
-    const { bgcolor, headercolor, sidebarcolor } = req.body;
+    const { bgcolor, headercolor, sidebarcolor,footercolor } = req.body;
 
     let updates = [];
     let values = [];
@@ -312,6 +312,10 @@ router.post("/updateColor", (req, res) => {
     if (sidebarcolor) {
         updates.push("sidebarcolor = ?");
         values.push(sidebarcolor);
+    }
+    if(footercolor){
+        updates.push("footercolor=?")
+        values.push(footercolor);
     }
 
     if (updates.length === 0) {
@@ -346,7 +350,7 @@ router.post("/updateColor", (req, res) => {
 //     });
 // });
 router.get("/getColors", (req, res) => {
-    const sql = "SELECT bgcolor, headercolor, sidebarcolor FROM bgcolor WHERE id = 1";
+    const sql = "SELECT bgcolor, headercolor, sidebarcolor,footercolor FROM bgcolor WHERE id = 1";
 
     db.query(sql, (err, result) => {
         if (err) {
@@ -361,8 +365,36 @@ router.get("/getColors", (req, res) => {
         }
     });
 });
+/// service method
+router.post("/service",(req,res)=>{
+    const{title}=req.body
+    console.log(title)
+    const sql="UPDATE services SET title = ? WHERE id = 1"
+    db.query(sql,[title],(err,result)=>{
+        if(err){
+            console.log("error")
+           return res.status(500).json({erro:"database error"});
+        }
+        return res.json({message:"data inserted successfully"});
+    })
+})
 
+router.get("/service/:id", (req, res) => {
+    const { id } = req.params; // Get ID from request params
+    const sql = "SELECT * FROM services WHERE id = ?"; // SQL Query
 
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            res.status(500).json({ message: "Error fetching service" });
+        } else {
+            if (result.length > 0) {
+                res.json(result[0]); // Send service details as response
+            } else {
+                res.status(404).json({ message: "Service not found" });
+            }
+        }
+    });
+});
 router.use('/uploads', express.static('uploads'));
 
 module.exports = router;

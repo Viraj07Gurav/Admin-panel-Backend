@@ -11,13 +11,16 @@ const fs = require("fs");
 require("dotenv").config(); // Load environment variables
 const authRoutes=require('./Routes/authRoutes');
 const AdminRouters=require('./Routes/AdminRoutes');
+const adminAuth=require('./Routes/adminAuth')
+const userRoute=require('./Routes/UserRoutes')
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 const PORT=process.env.PORT||5000;
-
+app.use(adminAuth);
 app.use(authRoutes)
 app.use(AdminRouters)
+app.use(userRoute);
 
 app.listen(PORT, () => console.log("Server running on port 5000"));

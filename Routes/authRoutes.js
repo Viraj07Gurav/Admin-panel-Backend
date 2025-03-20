@@ -44,21 +44,57 @@ router.post("/users", (req, res) => {
 });
 
 //login page check user credential with DB and create token on successful login
+// router.post("/login", (req, res) => {
+//     const { email, password } = req.body;
+//     console.log("email", email);
+//     console.log("password", password);
+
+//     //  Hardcoded Admin Credentials
+//     // const ADMIN_EMAIL = "admin@example.com";
+//     // const ADMIN_PASSWORD = "admin123";
+
+//     if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+//         //  Generate JWT for Admin with role "admin"
+//         const token = jwt.sign({ email, role: "admin", username: ADMIN_NAME }, JWT_SECRET, { expiresIn: "1h" });
+
+//         return res.json({ message: "Admin login successful", role: "admin", username: ADMIN_NAME, token });
+//     }
+//     if (email === ADMIN_EMAIL) {
+//         return res.status(401).json({ message: "Email already used" });
+//     }
+
+//     //  Check Normal Users in Database
+//     const sql = "SELECT * FROM usertable WHERE email = ? AND password = ?";
+//     db.query(sql, [email, password], (err, result) => {
+//         console.log("result", result);
+//         console.log("err", err);
+
+//         if (err) {
+//             return res.status(500).json({ message: "Database error" });
+//         }
+//         if (result.length > 0) {
+//             //  Generate token with role "user"
+//             const token = jwt.sign({ email, role: "user" }, JWT_SECRET, { expiresIn: "1h" });
+
+//             return res.json({ message: "Login successful", role: "user", user: result[0], token });
+//         }
+
+//         return res.status(401).json({ message: "Invalid email or password" });
+//     });
+// });
 router.post("/login", (req, res) => {
     const { email, password } = req.body;
     console.log("email", email);
     console.log("password", password);
 
     //  Hardcoded Admin Credentials
-    // const ADMIN_EMAIL = "admin@example.com";
-    // const ADMIN_PASSWORD = "admin123";
-
     if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
         //  Generate JWT for Admin with role "admin"
         const token = jwt.sign({ email, role: "admin", username: ADMIN_NAME }, JWT_SECRET, { expiresIn: "1h" });
 
         return res.json({ message: "Admin login successful", role: "admin", username: ADMIN_NAME, token });
     }
+
     if (email === ADMIN_EMAIL) {
         return res.status(401).json({ message: "Email already used" });
     }
@@ -73,15 +109,22 @@ router.post("/login", (req, res) => {
             return res.status(500).json({ message: "Database error" });
         }
         if (result.length > 0) {
-            //  Generate token with role "user"
-            const token = jwt.sign({ email, role: "user" }, JWT_SECRET, { expiresIn: "1h" });
+            const user = result[0];  // ✅ Extract user details
 
-            return res.json({ message: "Login successful", role: "user", user: result[0], token });
+            // ✅ Generate JWT token including `id`
+            const token = jwt.sign(
+                { id: user.id, email: user.email, role: "user" },  // Include `id`
+                JWT_SECRET,
+                { expiresIn: "1h" }
+            );
+
+            return res.json({ message: "Login successful", role: "user", user, token });
         }
 
         return res.status(401).json({ message: "Invalid email or password" });
     });
 });
+
 
 module.exports=router;
 
